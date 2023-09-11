@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "209773805623",
+    "project_id": "task-basic",
+    "storage_bucket": "task-basic.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:209773805623:android:f0e83cc7bc91b50f9bffb2",
+        "android_client_info": {
+          "package_name": "com.trassos.tasks_basic"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "209773805623-a3lt4m1bbiusphdvejesrmt88t0gpv9h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.trassos.tasks_basic",
+            "certificate_hash": "76467b4c9ffe79889f2003a74bc10b3d5d322e0b"
+          }
+        },
+        {
+          "client_id": "209773805623-721kk1f4ik0914fvjh96d9bftaa7m85o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPjIfmJJGPWrSoG1fKsVNIwb9_S-ijFCI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "209773805623-721kk1f4ik0914fvjh96d9bftaa7m85o.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "209773805623-j1ap3ev5iq5adtlp6o5m3p57lhpuksv2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.tasksBasic.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

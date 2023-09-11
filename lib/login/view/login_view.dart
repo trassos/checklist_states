@@ -1,14 +1,18 @@
-import 'package:flutter/material.dart';
-import 'package:tasks_basic/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:tasks_basic/main.dart';
 
 class LoginView extends StatelessWidget {
   const LoginView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    var isSigned = false;
     bool isLoading = false;
     String error = '';
+    TextEditingController emailController = TextEditingController();
+    var user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
@@ -25,7 +29,11 @@ class LoginView extends StatelessWidget {
                   'E-mail',
                   style: customTheme.textTheme.displaySmall,
                 ),
-                const TextField(
+                if (isSigned) Image.network(user!.photoURL!),
+                if (isSigned) Text(user!.displayName!),
+                if (!isSigned) Container(),
+                TextField(
+                  controller: emailController,
                   keyboardType: TextInputType.emailAddress,
                 ),
                 viewSpacer,
@@ -41,12 +49,30 @@ class LoginView extends StatelessWidget {
                         onPressed: () {},
                         child: const Text('Login'),
                       ),
+                ElevatedButton(
+                  style: viewButtonStyle,
+                  onPressed: () {
+                    signinWithGoogle(context);
+                  },
+                  child: const Text('Google Login'),
+                ),
               ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  void signinWithGoogle(BuildContext context) {
+    signInWithGoogle().then((userCredential) {
+      var user = userCredential.user;
+      print(user);
+
+      Navigator.pushNamed(context, '/checklist');
+    }).catchError((error) {
+      print(error);
+    });
   }
 }
 
@@ -60,3 +86,25 @@ ButtonStyle viewButtonStyle = ElevatedButton.styleFrom(
     borderRadius: BorderRadius.all(Radius.circular(8.0)),
   ),
 );
+
+Future<UserCredential> signInWithGoogle() async {
+  // Trigger the authentication flow
+  final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+  // Obtain the auth details from the request
+  final GoogleSignInAuthentication? googleAuth =
+      await googleUser?.authentication;
+
+  // Create a new credential
+  final credential = GoogleAuthProvider.credential(
+    accessToken: googleAuth?.accessToken,
+    idToken: googleAuth?.idToken,
+  );
+
+  UserCredential userCredential =
+      await FirebaseAuth.instance.signInWithCredential(credential);
+  // Once signed in, return the UserCredential
+
+  print(userCredential);
+  return userCredential;
+}

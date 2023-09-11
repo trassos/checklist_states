@@ -1,4 +1,4 @@
-package com.example.tasks_basic
+package com.trassos.tasks_basic
 
 import io.flutter.embedding.android.FlutterActivity
 
