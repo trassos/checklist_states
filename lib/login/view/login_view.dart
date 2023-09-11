@@ -67,12 +67,10 @@ class LoginView extends StatelessWidget {
   void signinWithGoogle(BuildContext context) {
     signInWithGoogle().then((userCredential) {
       var user = userCredential.user;
-      print(user);
-
-      Navigator.pushNamed(context, '/checklist');
-    }).catchError((error) {
-      print(error);
-    });
+      if (user != null) {
+        Navigator.pushNamed(context, '/checklist');
+      }
+    }).catchError((error) {});
   }
 }
 
@@ -105,6 +103,5 @@ Future<UserCredential> signInWithGoogle() async {
       await FirebaseAuth.instance.signInWithCredential(credential);
   // Once signed in, return the UserCredential
 
-  print(userCredential);
   return userCredential;
 }

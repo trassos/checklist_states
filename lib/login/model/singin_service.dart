@@ -19,9 +19,6 @@ class SignInService extends ChangeNotifier {
     );
     await FirebaseAuth.instance.signInWithCredential(credential);
     user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      Navigator.pushNamed(context, '/checklist');
-    }
   }
 
   // Future<void> signinWithEmail(BuildContext context) async {
