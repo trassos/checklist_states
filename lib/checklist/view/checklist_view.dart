@@ -22,7 +22,9 @@ class _ChecklistViewState extends State<ChecklistView> {
         isLoading = false;
       });
     } catch (e) {
-      error = e.toString();
+      setState(() {
+        error = e.toString();
+      });
     }
   }
 
@@ -40,8 +42,12 @@ class _ChecklistViewState extends State<ChecklistView> {
       body = const Center(child: CircularProgressIndicator());
     } else if (error.isNotEmpty) {
       body = Center(
-          child: ElevatedButton(
-              onPressed: getTaskList, child: const Text('Retry')));
+          child: Column(
+        children: [
+          Text(error),
+          ElevatedButton(onPressed: getTaskList, child: const Text('Retry')),
+        ],
+      ));
     } else if (taskList.isEmpty) {
       body = Center(
           child: ElevatedButton(
