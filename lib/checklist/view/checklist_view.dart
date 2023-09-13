@@ -25,19 +25,20 @@ class _ChecklistViewState extends State<ChecklistView> {
   @override
   Widget build(BuildContext context) {
     Widget body = Container();
+    final state = store.state;
 
-    if (store.isLoading) {
+    if (state.isLoading) {
       body = const Center(child: CircularProgressIndicator());
-    } else if (store.error.isNotEmpty) {
+    } else if (state.error.isNotEmpty) {
       body = Center(
           child: Column(
         children: [
-          Text(store.error),
+          Text(state.error),
           ElevatedButton(
               onPressed: store.getTaskList, child: const Text('Retry')),
         ],
       ));
-    } else if (store.taskList.isEmpty) {
+    } else if (state.taskList.isEmpty) {
       body = Center(
           child: ElevatedButton(
               onPressed: store.getTaskList, child: const Text('Load')));
@@ -47,13 +48,13 @@ class _ChecklistViewState extends State<ChecklistView> {
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: ListView.builder(
-              itemCount: store.taskList.length,
+              itemCount: state.taskList.length,
               itemBuilder: (context, index) => ListTile(
                     leading: Checkbox(
-                      value: store.taskList[index].completed,
+                      value: state.taskList[index].completed,
                       onChanged: (value) {},
                     ),
-                    title: Text(store.taskList[index].title),
+                    title: Text(state.taskList[index].title),
                   )),
         ),
       );
