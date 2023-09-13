@@ -5,16 +5,18 @@ import 'package:tasks_basic/checklist/view_model/checklist_state.dart';
 class ChecklistStore extends ChangeNotifier {
   final BeeceptorService _beeceptorService = BeeceptorService();
 
-  final state = ChecklistState.empty();
+  ChecklistState state = ChecklistStateEmpty();
 
   void getTaskList() async {
+    state = ChecklistStateLoading();
+    notifyListeners();
     try {
       await _beeceptorService
           .getTaskList()
-          .then((value) => state.copyWith(isLoading: false, taskList: value));
+          .then((value) => state = ChecklistStateLoaded(value));
       notifyListeners();
     } catch (e) {
-      state.copyWith(error: e.toString());
+      state = ChecklistStateError(e.toString());
       notifyListeners();
     }
   }

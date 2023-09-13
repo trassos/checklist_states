@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tasks_basic/checklist/model/beeceptor_service.dart';
+import 'package:tasks_basic/checklist/view_model/checklist_state.dart';
 import 'package:tasks_basic/checklist/view_model/checklist_store.dart';
 
 class ChecklistView extends StatefulWidget {
@@ -27,9 +28,9 @@ class _ChecklistViewState extends State<ChecklistView> {
     Widget body = Container();
     final state = store.state;
 
-    if (state.isLoading) {
+    if (state is ChecklistStateLoading) {
       body = const Center(child: CircularProgressIndicator());
-    } else if (state.error.isNotEmpty) {
+    } else if (state is ChecklistStateError) {
       body = Center(
           child: Column(
         children: [
@@ -38,11 +39,11 @@ class _ChecklistViewState extends State<ChecklistView> {
               onPressed: store.getTaskList, child: const Text('Retry')),
         ],
       ));
-    } else if (state.taskList.isEmpty) {
+    } else if (state is ChecklistStateEmpty) {
       body = Center(
           child: ElevatedButton(
               onPressed: store.getTaskList, child: const Text('Load')));
-    } else {
+    } else if (state is ChecklistStateLoaded) {
       body = SizedBox(
         height: MediaQuery.of(context).size.height,
         child: Padding(
