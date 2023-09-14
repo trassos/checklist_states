@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tasks_basic/counter/view_model/counter_controller.dart';
+import 'package:tasks_basic/counter/view_model/counter_store.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class CounterView extends StatefulWidget {
@@ -10,7 +10,7 @@ class CounterView extends StatefulWidget {
 }
 
 class _CounterViewState extends State<CounterView> {
-  final counterController = CounterController();
+  final counterStore = CounterStore();
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class _CounterViewState extends State<CounterView> {
             ),
             Observer(builder: (_) {
               return Text(
-                '${counterController.counter.value}',
+                '${counterStore.counter}',
                 style: Theme.of(context).textTheme.displayLarge,
               );
             }),
@@ -36,7 +36,7 @@ class _CounterViewState extends State<CounterView> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => counterController.increment(),
+        onPressed: () => counterStore.increment(),
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
