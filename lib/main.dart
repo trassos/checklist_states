@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:tasks_basic/checklist/view/checklist_view.dart';
+import 'package:tasks_basic/counter/view/counter_view.dart';
 import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:tasks_basic/login/view/login_view.dart';
@@ -22,8 +23,9 @@ class TaskBasic extends StatelessWidget {
       theme: customTheme,
       debugShowCheckedModeBanner: false,
       routes: {
-        '/': (context) => const LoginView(),
+        '/login': (context) => const LoginView(),
         '/checklist': (context) => ChecklistView(),
+        '/': (context) => const CounterView(),
       },
     );
   }
