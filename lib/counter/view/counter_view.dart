@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:get_it/get_it.dart';
 import 'package:tasks_basic/counter/view_model/counter_store.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:tasks_basic/login/view_model/login_store.dart';
@@ -13,10 +13,10 @@ class CounterView extends StatefulWidget {
 
 class _CounterViewState extends State<CounterView> {
   final counterStore = CounterStore();
+  LoginStore loginStore = GetIt.I<LoginStore>();
 
   @override
   Widget build(BuildContext context) {
-    LoginStore loginStore = Provider.of<LoginStore>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('${loginStore.email} ${loginStore.password}'),

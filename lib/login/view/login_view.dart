@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:provider/provider.dart';
+import 'package:get_it/get_it.dart';
 import 'package:tasks_basic/counter/view/counter_view.dart';
 import 'package:tasks_basic/login/model/singin_service.dart';
 import 'package:tasks_basic/login/view_model/login_store.dart';
@@ -16,10 +16,10 @@ class LoginView extends StatefulWidget {
 class _LoginViewState extends State<LoginView> {
   SignInService signInService = SignInService();
   FirebaseAuth auth = FirebaseAuth.instance;
+  LoginStore loginStore = GetIt.I<LoginStore>();
 
   @override
   Widget build(BuildContext context) {
-    LoginStore loginStore = Provider.of<LoginStore>(context);
     final photoURL = auth.currentUser?.photoURL;
     final displayName = auth.currentUser?.displayName;
 
@@ -75,7 +75,6 @@ class _LoginViewState extends State<LoginView> {
 
   Observer photoAndNameBuilder(
       String? photoURL, String? displayName, BuildContext context) {
-    LoginStore loginStore = Provider.of<LoginStore>(context);
     return Observer(builder: (_) {
       if (loginStore.isSigned) {
         return Column(children: [
@@ -93,7 +92,6 @@ class _LoginViewState extends State<LoginView> {
   }
 
   Observer loginOrNextButtonsBuilder(context) {
-    LoginStore loginStore = Provider.of<LoginStore>(context);
     return Observer(builder: (_) {
       return Column(
         children: [
@@ -133,7 +131,6 @@ class _LoginViewState extends State<LoginView> {
   }
 
   void signinWithGoogle() {
-    LoginStore loginStore = Provider.of<LoginStore>(context, listen: false);
     signInService.signInWithGoogle().then((userCredential) {
       var user = userCredential.user;
       loginStore.setIsSigned(true);
@@ -148,7 +145,6 @@ class _LoginViewState extends State<LoginView> {
   }
 
   void signInWithEmail() {
-    LoginStore loginStore = Provider.of<LoginStore>(context, listen: false);
     signInService
         .signInWithEmail(email: loginStore.email, pass: loginStore.password)
         .then((userCredential) {
@@ -171,7 +167,6 @@ class _LoginViewState extends State<LoginView> {
   }
 
   void signOut() {
-    LoginStore loginStore = Provider.of<LoginStore>(context, listen: false);
     signInService.signout().then((value) {
       loginStore.setIsSigned(false);
     }).catchError((error) {});
