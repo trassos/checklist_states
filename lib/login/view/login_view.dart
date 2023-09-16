@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:tasks_basic/login/view_model/login_store.dart';
+import 'package:tasks_basic/login/view_model/text_form_field_store.dart';
 import 'package:tasks_basic/main.dart';
 
 class LoginView extends StatefulWidget {
@@ -13,8 +13,9 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
-  LoginStore loginStore = LoginStore();
+  TextFormFieldStore textFormFieldStore = TextFormFieldStore();
   var user = FirebaseAuth.instance.currentUser;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,37 +29,35 @@ class _LoginViewState extends State<LoginView> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                Observer(builder: (_) {
+                  return ElevatedButton(
+                    style: viewButtonStyle,
+                    onPressed: textFormFieldStore.isFormValid ? () {} : null,
+                    child: const Text('Login'),
+                  );
+                }),
+                viewSpacer,
                 Observer(
                   builder: (_) {
-                    return Text(loginStore.fullData,
+                    return Text(textFormFieldStore.loginStore.fullData,
                         style: customTheme.textTheme.displayLarge);
                   },
-                ),
-                Text(
-                  'E-mail',
-                  style: customTheme.textTheme.displaySmall,
                 ),
                 // if (isSigned) Image.network(user!.photoURL!),
                 // if (isSigned) Text(user!.displayName!),
                 // if (!isSigned) Container(),
-                TextField(
-                  onChanged: loginStore.setEmail,
-                  keyboardType: TextInputType.emailAddress,
+                Observer(
+                  builder: (_) => _textFieldBuilder(
+                      label: 'Email',
+                      onChanged: textFormFieldStore.loginStore.setEmail,
+                      validator: textFormFieldStore.validateEmail),
                 ),
                 viewSpacer,
-                Text('Password', style: customTheme.textTheme.displaySmall),
-                TextField(
-                  onChanged: loginStore.setPass,
-                  keyboardType: TextInputType.visiblePassword,
-                ),
-                viewSpacer,
-                // isLoading
-                //     ? const CircularProgressIndicator()
-                // :
-                ElevatedButton(
-                  style: viewButtonStyle,
-                  onPressed: () {},
-                  child: const Text('Login'),
+                Observer(
+                  builder: (_) => _textFieldBuilder(
+                      label: 'Password',
+                      onChanged: textFormFieldStore.loginStore.setPass,
+                      validator: textFormFieldStore.validatePass),
                 ),
                 viewSpacer,
                 ElevatedButton(
@@ -69,6 +68,9 @@ class _LoginViewState extends State<LoginView> {
                   child: const Text('Google Login'),
                 ),
                 viewSpacer,
+                // isLoading
+                //     ? const CircularProgressIndicator()
+                // :
               ],
             ),
           ),
@@ -84,6 +86,24 @@ class _LoginViewState extends State<LoginView> {
         Navigator.pushNamed(context, '/checklist');
       }
     }).catchError((error) {});
+  }
+
+  Widget _textFieldBuilder(
+      {required String label,
+      onChanged,
+      required String? Function(String?) validator}) {
+    return TextFormField(
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: (value) => validator(value),
+      keyboardType: TextInputType.emailAddress,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+      ),
+      onChanged: onChanged,
+    );
   }
 }
 
