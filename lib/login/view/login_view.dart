@@ -1,9 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:provider/provider.dart';
 import 'package:tasks_basic/counter/view/counter_view.dart';
 import 'package:tasks_basic/login/model/singin_service.dart';
-import 'package:tasks_basic/login/view_model/text_form_field_store.dart';
+import 'package:tasks_basic/login/view_model/login_store.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -14,11 +15,11 @@ class LoginView extends StatefulWidget {
 
 class _LoginViewState extends State<LoginView> {
   SignInService signInService = SignInService();
-  TextFormFieldStore textFormFieldStore = TextFormFieldStore();
   FirebaseAuth auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
+    LoginStore loginStore = Provider.of<LoginStore>(context);
     final photoURL = auth.currentUser?.photoURL;
     final displayName = auth.currentUser?.displayName;
 
@@ -40,19 +41,19 @@ class _LoginViewState extends State<LoginView> {
                 Observer(
                   builder: (_) => _textFieldBuilder(
                       label: 'Email',
-                      onChanged: textFormFieldStore.loginStore.setEmail,
-                      validator: textFormFieldStore.validateEmail),
+                      onChanged: loginStore.setEmail,
+                      validator: loginStore.validateEmail),
                 ),
                 viewSpacer,
                 Observer(
                   builder: (_) => _textFieldBuilder(
                       label: 'Password',
-                      onChanged: textFormFieldStore.loginStore.setPass,
-                      validator: textFormFieldStore.validatePass),
+                      onChanged: loginStore.setPass,
+                      validator: loginStore.validatePass),
                 ),
                 viewSpacer,
                 Observer(builder: (_) {
-                  if (!textFormFieldStore.loginStore.isSigned) {
+                  if (!loginStore.isSigned) {
                     return ElevatedButton(
                       style: viewButtonStyle,
                       onPressed: () {
@@ -74,9 +75,9 @@ class _LoginViewState extends State<LoginView> {
 
   Observer photoAndNameBuilder(
       String? photoURL, String? displayName, BuildContext context) {
-    print(photoURL);
+    LoginStore loginStore = Provider.of<LoginStore>(context);
     return Observer(builder: (_) {
-      if (textFormFieldStore.loginStore.isSigned) {
+      if (loginStore.isSigned) {
         return Column(children: [
           if (photoURL != null)
             CircleAvatar(
@@ -92,10 +93,11 @@ class _LoginViewState extends State<LoginView> {
   }
 
   Observer loginOrNextButtonsBuilder(context) {
+    LoginStore loginStore = Provider.of<LoginStore>(context);
     return Observer(builder: (_) {
       return Column(
         children: [
-          if (textFormFieldStore.loginStore.isSigned)
+          if (loginStore.isSigned)
             Column(
               children: [
                 ElevatedButton(
@@ -121,9 +123,8 @@ class _LoginViewState extends State<LoginView> {
           else
             ElevatedButton(
               style: viewButtonStyle,
-              onPressed: textFormFieldStore.isFormValid
-                  ? () => signInWithEmail()
-                  : null,
+              onPressed:
+                  loginStore.isFormValid ? () => signInWithEmail() : null,
               child: const Text('Login'),
             ),
         ],
@@ -132,9 +133,12 @@ class _LoginViewState extends State<LoginView> {
   }
 
   void signinWithGoogle() {
+    LoginStore loginStore = Provider.of<LoginStore>(context, listen: false);
     signInService.signInWithGoogle().then((userCredential) {
       var user = userCredential.user;
-      textFormFieldStore.loginStore.setIsSigned(true);
+      loginStore.setIsSigned(true);
+      loginStore.setEmail(user?.email);
+      loginStore.setPass('');
       setState(() {});
       if (user != null) {
         Navigator.push(
@@ -144,14 +148,13 @@ class _LoginViewState extends State<LoginView> {
   }
 
   void signInWithEmail() {
+    LoginStore loginStore = Provider.of<LoginStore>(context, listen: false);
     signInService
-        .signInWithEmail(
-            email: textFormFieldStore.loginStore.email,
-            pass: textFormFieldStore.loginStore.password)
+        .signInWithEmail(email: loginStore.email, pass: loginStore.password)
         .then((userCredential) {
       if (userCredential != null) {
         var user = userCredential.user;
-        textFormFieldStore.loginStore.setIsSigned(true);
+        loginStore.setIsSigned(true);
         setState(() {});
         if (user != null) {
           Navigator.push(
@@ -168,8 +171,9 @@ class _LoginViewState extends State<LoginView> {
   }
 
   void signOut() {
+    LoginStore loginStore = Provider.of<LoginStore>(context, listen: false);
     signInService.signout().then((value) {
-      textFormFieldStore.loginStore.setIsSigned(false);
+      loginStore.setIsSigned(false);
     }).catchError((error) {});
   }
 

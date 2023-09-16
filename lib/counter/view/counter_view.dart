@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tasks_basic/counter/view_model/counter_store.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:tasks_basic/login/view_model/login_store.dart';
 
 class CounterView extends StatefulWidget {
   const CounterView({super.key});
@@ -14,9 +16,10 @@ class _CounterViewState extends State<CounterView> {
 
   @override
   Widget build(BuildContext context) {
+    LoginStore loginStore = Provider.of<LoginStore>(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Counter View'),
+        title: Text('${loginStore.email} ${loginStore.password}'),
       ),
       body: Center(
         child: Column(

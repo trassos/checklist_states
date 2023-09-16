@@ -1,6 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 import 'package:tasks_basic/checklist/view/checklist_view.dart';
 import 'package:tasks_basic/counter/view/counter_view.dart';
+import 'package:tasks_basic/login/view_model/login_store.dart';
 import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:tasks_basic/login/view/login_view.dart';
@@ -10,7 +12,28 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const TaskBasic());
+  runApp(
+    MultiProvider(
+      providers: [
+        Provider<LoginStore>(
+          create: (_) => LoginStore(),
+          dispose: (_, loginStore) => loginStore.dispose(),
+        ),
+      ],
+      child: const TaskBasic(),
+    ),
+  );
+}
+
+class LoginProvider with ChangeNotifier {
+  LoginStore _loginStore = LoginStore();
+
+  LoginStore get loginStore => _loginStore;
+
+  set loginStore(LoginStore newLoginStore) {
+    _loginStore = newLoginStore;
+    notifyListeners();
+  }
 }
 
 class TaskBasic extends StatelessWidget {
