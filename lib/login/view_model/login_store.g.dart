@@ -49,6 +49,22 @@ mixin _$LoginStore on _LoginStoreBase, Store {
     });
   }
 
+  late final _$isSignedAtom =
+      Atom(name: '_LoginStoreBase.isSigned', context: context);
+
+  @override
+  bool get isSigned {
+    _$isSignedAtom.reportRead();
+    return super.isSigned;
+  }
+
+  @override
+  set isSigned(bool value) {
+    _$isSignedAtom.reportWrite(value, super.isSigned, () {
+      super.isSigned = value;
+    });
+  }
+
   late final _$_LoginStoreBaseActionController =
       ActionController(name: '_LoginStoreBase', context: context);
 
@@ -75,10 +91,22 @@ mixin _$LoginStore on _LoginStoreBase, Store {
   }
 
   @override
+  dynamic setIsSigned(dynamic newIsSigned) {
+    final _$actionInfo = _$_LoginStoreBaseActionController.startAction(
+        name: '_LoginStoreBase.setIsSigned');
+    try {
+      return super.setIsSigned(newIsSigned);
+    } finally {
+      _$_LoginStoreBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 email: ${email},
 password: ${password},
+isSigned: ${isSigned},
 fullData: ${fullData}
     ''';
   }

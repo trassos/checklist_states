@@ -21,6 +21,13 @@ abstract class _LoginStoreBase with Store {
     password = newPass;
   }
 
+  @observable
+  bool isSigned = false;
+  @action
+  setIsSigned(newIsSigned) {
+    isSigned = newIsSigned;
+  }
+
   @computed
   String get fullData => '$email $password';
 }

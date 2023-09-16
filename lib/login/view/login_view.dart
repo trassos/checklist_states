@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:tasks_basic/counter/view/counter_view.dart';
+import 'package:tasks_basic/login/model/singin_service.dart';
 import 'package:tasks_basic/login/view_model/text_form_field_store.dart';
-import 'package:tasks_basic/main.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -13,11 +13,15 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
+  SignInService signInService = SignInService();
   TextFormFieldStore textFormFieldStore = TextFormFieldStore();
-  var user = FirebaseAuth.instance.currentUser;
+  FirebaseAuth auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
+    final photoURL = auth.currentUser?.photoURL;
+    final displayName = auth.currentUser?.displayName;
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       body: SingleChildScrollView(
@@ -29,23 +33,10 @@ class _LoginViewState extends State<LoginView> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Observer(builder: (_) {
-                  return ElevatedButton(
-                    style: viewButtonStyle,
-                    onPressed: textFormFieldStore.isFormValid ? () {} : null,
-                    child: const Text('Login'),
-                  );
-                }),
+                photoAndNameBuilder(photoURL, displayName, context),
                 viewSpacer,
-                Observer(
-                  builder: (_) {
-                    return Text(textFormFieldStore.loginStore.fullData,
-                        style: customTheme.textTheme.displayLarge);
-                  },
-                ),
-                // if (isSigned) Image.network(user!.photoURL!),
-                // if (isSigned) Text(user!.displayName!),
-                // if (!isSigned) Container(),
+                loginOrNextButtonsBuilder(context),
+                viewSpacer,
                 Observer(
                   builder: (_) => _textFieldBuilder(
                       label: 'Email',
@@ -60,17 +51,19 @@ class _LoginViewState extends State<LoginView> {
                       validator: textFormFieldStore.validatePass),
                 ),
                 viewSpacer,
-                ElevatedButton(
-                  style: viewButtonStyle,
-                  onPressed: () {
-                    signinWithGoogle(context);
-                  },
-                  child: const Text('Google Login'),
-                ),
+                Observer(builder: (_) {
+                  if (!textFormFieldStore.loginStore.isSigned) {
+                    return ElevatedButton(
+                      style: viewButtonStyle,
+                      onPressed: () {
+                        signinWithGoogle();
+                      },
+                      child: const Text('Google Login'),
+                    );
+                  }
+                  return Container();
+                }),
                 viewSpacer,
-                // isLoading
-                //     ? const CircularProgressIndicator()
-                // :
               ],
             ),
           ),
@@ -79,12 +72,104 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
-  void signinWithGoogle(BuildContext context) {
-    signInWithGoogle().then((userCredential) {
-      var user = userCredential.user;
-      if (user != null) {
-        Navigator.pushNamed(context, '/checklist');
+  Observer photoAndNameBuilder(
+      String? photoURL, String? displayName, BuildContext context) {
+    print(photoURL);
+    return Observer(builder: (_) {
+      if (textFormFieldStore.loginStore.isSigned) {
+        return Column(children: [
+          if (photoURL != null)
+            CircleAvatar(
+              radius: 50,
+              backgroundImage: NetworkImage(photoURL.toString()),
+            ),
+          viewSpacer,
+          if (displayName != null) Text(displayName),
+        ]);
       }
+      return Container();
+    });
+  }
+
+  Observer loginOrNextButtonsBuilder(context) {
+    return Observer(builder: (_) {
+      return Column(
+        children: [
+          if (textFormFieldStore.loginStore.isSigned)
+            Column(
+              children: [
+                ElevatedButton(
+                  style: viewButtonStyle,
+                  child: const Text('Next'),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const CounterView()),
+                    );
+                  },
+                ),
+                viewSpacer,
+                ElevatedButton(
+                  style: viewButtonStyle,
+                  child: const Text('Sign Out'),
+                  onPressed: () {
+                    signOut();
+                  },
+                ),
+              ],
+            )
+          else
+            ElevatedButton(
+              style: viewButtonStyle,
+              onPressed: textFormFieldStore.isFormValid
+                  ? () => signInWithEmail()
+                  : null,
+              child: const Text('Login'),
+            ),
+        ],
+      );
+    });
+  }
+
+  void signinWithGoogle() {
+    signInService.signInWithGoogle().then((userCredential) {
+      var user = userCredential.user;
+      textFormFieldStore.loginStore.setIsSigned(true);
+      setState(() {});
+      if (user != null) {
+        Navigator.push(
+            context, MaterialPageRoute(builder: (_) => const CounterView()));
+      }
+    }).catchError((error) {});
+  }
+
+  void signInWithEmail() {
+    signInService
+        .signInWithEmail(
+            email: textFormFieldStore.loginStore.email,
+            pass: textFormFieldStore.loginStore.password)
+        .then((userCredential) {
+      if (userCredential != null) {
+        var user = userCredential.user;
+        textFormFieldStore.loginStore.setIsSigned(true);
+        setState(() {});
+        if (user != null) {
+          Navigator.push(
+              context, MaterialPageRoute(builder: (_) => const CounterView()));
+        }
+      }
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.toString()),
+        ),
+      );
+    });
+  }
+
+  void signOut() {
+    signInService.signout().then((value) {
+      textFormFieldStore.loginStore.setIsSigned(false);
     }).catchError((error) {});
   }
 
@@ -117,24 +202,3 @@ ButtonStyle viewButtonStyle = ElevatedButton.styleFrom(
     borderRadius: BorderRadius.all(Radius.circular(8.0)),
   ),
 );
-
-Future<UserCredential> signInWithGoogle() async {
-  // Trigger the authentication flow
-  final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
-  // Obtain the auth details from the request
-  final GoogleSignInAuthentication? googleAuth =
-      await googleUser?.authentication;
-
-  // Create a new credential
-  final credential = GoogleAuthProvider.credential(
-    accessToken: googleAuth?.accessToken,
-    idToken: googleAuth?.idToken,
-  );
-
-  UserCredential userCredential =
-      await FirebaseAuth.instance.signInWithCredential(credential);
-  // Once signed in, return the UserCredential
-
-  return userCredential;
-}

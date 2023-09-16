@@ -1,68 +1,59 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-class SignInService extends ChangeNotifier {
-  bool isSigned = false;
-  bool isLoading = false;
+class SignInService {
+  FirebaseAuth auth = FirebaseAuth.instance;
   String error = '';
-  TextEditingController emailController = TextEditingController();
-  var user = FirebaseAuth.instance.currentUser;
 
-  Future<void> signinWithGoogle(BuildContext context) async {
+  Future<UserCredential> signInWithGoogle() async {
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser!.authentication;
+    final GoogleSignInAuthentication? googleAuth =
+        await googleUser?.authentication;
     final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
     );
-    await FirebaseAuth.instance.signInWithCredential(credential);
-    user = FirebaseAuth.instance.currentUser;
+    UserCredential userCredential = await auth.signInWithCredential(credential);
+    return userCredential;
   }
 
-  // Future<void> signinWithEmail(BuildContext context) async {
-  //   try {
-  //     await FirebaseAuth.instance.signInWithEmailAndPassword(
-  //         email: emailController.text, password: passwordController.text);
-  //     user = FirebaseAuth.instance.currentUser;
-  //     if (user != null) {
-  //       Navigator.pushNamed(context, '/checklist');
-  //     }
-  //   } on FirebaseAuthException catch (e) {
-  //     if (e.code == 'user-not-found') {
-  //       error = 'No user found for that email.';
-  //     } else if (e.code == 'wrong-password') {
-  //       error = 'Wrong password provided for that user.';
-  //     }
-  //   }
-  // }
+  Future<UserCredential?> signInWithEmail(
+      {required String email, required String pass}) async {
+    try {
+      UserCredential userCredential =
+          await auth.signInWithEmailAndPassword(email: email, password: pass);
+      return userCredential;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == "wrong-password") {
+        error = "Wrong password provided for that user.";
+      } else if (e.code == "user-not-found") {
+        UserCredential? userCredential =
+            await signUpWithEmail(email: email, pass: pass);
+        return userCredential;
+      } else if (e.code == "invalid-email") {
+        error = "Invalid email address.";
+      } else if (e.code == "user-disabled") {
+        error = "User with this email has been disabled.";
+      } else {
+        error = e.message!;
+      }
+      throw Exception(error);
+    }
+  }
 
-  // Future<void> signupWithEmail(BuildContext context) async {
-  //   try {
-  //     await FirebaseAuth.instance.createUserWithEmailAndPassword(
-  //         email: emailController.text, password: passwordController.text);
-  //     user = FirebaseAuth.instance.currentUser;
-  //     if (user != null) {
-  //       Navigator.pushNamed(context, '/checklist');
-  //     }
-  //   } on FirebaseAuthException catch (e) {
-  //     if (e.code == 'weak-password') {
-  //       error = 'The password provided is too weak.';
-  //     } else if (e.code == 'email-already-in-use') {
-  //       error = 'The account already exists for that email.';
-  //     }
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  // }
+  Future<UserCredential?> signUpWithEmail(
+      {required String email, required String pass}) async {
+    try {
+      UserCredential userCredential = await auth.createUserWithEmailAndPassword(
+          email: email, password: pass);
+      return userCredential;
+    } on FirebaseAuthException catch (e) {
+      error = e.message!;
+      return null;
+    }
+  }
 
   Future<void> signout() async {
     await FirebaseAuth.instance.signOut();
-    user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      isSigned = false;
-      notifyListeners();
-    }
   }
 }
