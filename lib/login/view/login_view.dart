@@ -1,19 +1,22 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:tasks_basic/login/view_model/login_store.dart';
 import 'package:tasks_basic/main.dart';
 
-class LoginView extends StatelessWidget {
+class LoginView extends StatefulWidget {
   const LoginView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    var isSigned = false;
-    bool isLoading = false;
-    String error = '';
-    TextEditingController emailController = TextEditingController();
-    var user = FirebaseAuth.instance.currentUser;
+  State<LoginView> createState() => _LoginViewState();
+}
 
+class _LoginViewState extends State<LoginView> {
+  LoginStore loginStore = LoginStore();
+  var user = FirebaseAuth.instance.currentUser;
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       body: SingleChildScrollView(
@@ -25,30 +28,39 @@ class LoginView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                Observer(
+                  builder: (_) {
+                    return Text(loginStore.fullData,
+                        style: customTheme.textTheme.displayLarge);
+                  },
+                ),
                 Text(
                   'E-mail',
                   style: customTheme.textTheme.displaySmall,
                 ),
-                if (isSigned) Image.network(user!.photoURL!),
-                if (isSigned) Text(user!.displayName!),
-                if (!isSigned) Container(),
+                // if (isSigned) Image.network(user!.photoURL!),
+                // if (isSigned) Text(user!.displayName!),
+                // if (!isSigned) Container(),
                 TextField(
-                  controller: emailController,
+                  onChanged: loginStore.setEmail,
                   keyboardType: TextInputType.emailAddress,
                 ),
                 viewSpacer,
                 Text('Password', style: customTheme.textTheme.displaySmall),
-                const TextField(
+                TextField(
+                  onChanged: loginStore.setPass,
                   keyboardType: TextInputType.visiblePassword,
                 ),
                 viewSpacer,
-                isLoading
-                    ? const CircularProgressIndicator()
-                    : ElevatedButton(
-                        style: viewButtonStyle,
-                        onPressed: () {},
-                        child: const Text('Login'),
-                      ),
+                // isLoading
+                //     ? const CircularProgressIndicator()
+                // :
+                ElevatedButton(
+                  style: viewButtonStyle,
+                  onPressed: () {},
+                  child: const Text('Login'),
+                ),
+                viewSpacer,
                 ElevatedButton(
                   style: viewButtonStyle,
                   onPressed: () {
@@ -56,6 +68,7 @@ class LoginView extends StatelessWidget {
                   },
                   child: const Text('Google Login'),
                 ),
+                viewSpacer,
               ],
             ),
           ),
