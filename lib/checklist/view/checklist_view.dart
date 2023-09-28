@@ -1,59 +1,121 @@
 import 'package:flutter/material.dart';
-import 'package:tasks_basic/checklist/view_model/checklist_state.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:tasks_basic/checklist/view_model/checklist_store.dart';
 
-class ChecklistView extends StatelessWidget {
-  ChecklistView({super.key});
+class ChecklistView extends StatefulWidget {
+  const ChecklistView({super.key});
 
-  final store = ChecklistStore();
+  @override
+  State<ChecklistView> createState() => _ChecklistViewState();
+}
+
+class _ChecklistViewState extends State<ChecklistView> {
+  ChecklistStore checklistStore = ChecklistStore();
+
+  @override
+  void initState() {
+    checklistStore.getList();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: store,
-      builder: (context, child) {
-        Widget body = Container();
-        final state = store.state;
-
-        if (state is ChecklistStateLoading) {
-          body = const Center(child: CircularProgressIndicator());
-        } else if (state is ChecklistStateError) {
-          body = Center(
-              child: Column(
-            children: [
-              Text(state.error),
-              ElevatedButton(
-                  onPressed: store.getTaskList, child: const Text('Retry')),
-            ],
-          ));
-        } else if (state is ChecklistStateEmpty) {
-          body = Center(
-              child: ElevatedButton(
-                  onPressed: store.getTaskList, child: const Text('Load')));
-        } else if (state is ChecklistStateLoaded) {
-          body = SizedBox(
-            height: MediaQuery.of(context).size.height,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ListView.builder(
-                  itemCount: state.taskList.length,
-                  itemBuilder: (context, index) => ListTile(
+    return Scaffold(
+      body: Observer(builder: (_) {
+        if (checklistStore.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (checklistStore.error.isNotEmpty) {
+          return Observer(builder: (_) {
+            return Center(
+                child: Column(
+              children: [
+                Text(checklistStore.error),
+                ElevatedButton(
+                    onPressed: checklistStore.getList,
+                    child: const Text('Retry')),
+              ],
+            ));
+          });
+        } else if (checklistStore.taskList.isEmpty) {
+          return Observer(builder: (_) {
+            return Center(
+                child: ElevatedButton(
+                    onPressed: checklistStore.getList,
+                    child: const Text('Load')));
+          });
+        } else {
+          return SizedBox(
+              height: MediaQuery.of(context).size.height,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Observer(builder: (_) {
+                  return ListView.builder(
+                    itemCount: checklistStore.taskList.length,
+                    itemBuilder: (context, index) => Observer(builder: (_) {
+                      return ListTile(
+                        title: Text(checklistStore.taskList[index].title),
                         leading: Checkbox(
-                          value: state.taskList[index].completed,
-                          onChanged: (value) {},
+                          value: checklistStore.taskList[index].completed,
+                          onChanged: (value) {
+                            checklistStore.setTaskStatus(index, value);
+                          },
                         ),
-                        title: Text(state.taskList[index].title),
-                      )),
-            ),
-          );
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: () {
+                            checklistStore.removeTask(index);
+                          },
+                        ),
+                      );
+                    }),
+                  );
+                }),
+              ));
         }
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('Checklist'),
-          ),
-          body: body,
-        );
-      },
+      }),
+      appBar: AppBar(
+        title: const Text('Checklist'),
+      ),
+      floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            _dialog(context);
+          },
+          child: const Icon(Icons.add)),
     );
+  }
+
+  _dialog(BuildContext context) {
+    var title = '';
+    showDialog(
+        context: context,
+        builder: (_) {
+          return AlertDialog(
+            title: const Text('Adicionar item'),
+            content: TextField(
+              onChanged: (value) {
+                title = value;
+              },
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Novo item',
+              ),
+            ),
+            actions: <Widget>[
+              ElevatedButton(
+                onPressed: () {
+                  checklistStore.addTask(title);
+                  Navigator.pop(context);
+                },
+                child: const Text('Salvar'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Cancelar'),
+              ),
+            ],
+          );
+        });
   }
 }

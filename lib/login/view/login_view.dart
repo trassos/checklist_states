@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:get_it/get_it.dart';
+import 'package:tasks_basic/checklist/view/checklist_view.dart';
 import 'package:tasks_basic/counter/view/counter_view.dart';
 import 'package:tasks_basic/login/model/singin_service.dart';
 import 'package:tasks_basic/login/view_model/login_store.dart';
@@ -104,7 +105,7 @@ class _LoginViewState extends State<LoginView> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const CounterView()),
+                      MaterialPageRoute(builder: (_) => ChecklistView()),
                     );
                   },
                 ),

@@ -1,7 +1,7 @@
 class TaskDTO {
-  final num id;
-  final String title;
-  final bool completed;
+  num id;
+  String title;
+  bool completed;
 
   TaskDTO({required this.id, required this.title, required this.completed});
 
