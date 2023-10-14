@@ -1,17 +1,12 @@
 import 'package:mobx/mobx.dart';
-import 'package:tasks_basic/checklist/model/task_dto.dart';
 part 'task_model.g.dart';
 
+// ignore: library_private_types_in_public_api
 class TaskModel = _TaskModelBase with _$TaskModel;
 
 abstract class _TaskModelBase with Store {
   _TaskModelBase(
       {required this.id, required this.title, required this.completed});
-
-  _TaskModelBase.fromDTO(TaskDTO dto)
-      : id = dto.id,
-        title = dto.title,
-        completed = dto.completed;
 
   @observable
   num id;

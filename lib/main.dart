@@ -31,8 +31,8 @@ class TaskBasic extends StatelessWidget {
       theme: customTheme,
       debugShowCheckedModeBanner: false,
       routes: {
-        '/': (context) => const LoginView(),
-        '/checklist': (context) => ChecklistView(),
+        '/login': (context) => const LoginView(),
+        '/': (context) => const ChecklistView(),
         '/counter': (context) => const CounterView(),
       },
     );

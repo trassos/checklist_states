@@ -3,6 +3,7 @@ import 'package:tasks_basic/checklist/model/beeceptor_service.dart';
 import 'package:tasks_basic/checklist/model/task_model.dart';
 part 'checklist_store.g.dart';
 
+// ignore: library_private_types_in_public_api
 class ChecklistStore = _ChecklistStoreBase with _$ChecklistStore;
 
 abstract class _ChecklistStoreBase with Store {
@@ -22,6 +23,23 @@ abstract class _ChecklistStoreBase with Store {
   var isLoading = true;
   @action
   setIsLoading(bool value) => isLoading = value;
+
+  @observable
+  String filter = '';
+  @action
+  setFilter(String value) => filter = value;
+  @computed
+  ObservableList<TaskModel> get filteredList {
+    if (filter.isEmpty) {
+      return taskList;
+    } else {
+      return taskList
+          .where((element) =>
+              element.title.toLowerCase().contains(filter.toLowerCase()))
+          .toList()
+          .asObservable();
+    }
+  }
 
   @action
   setTaskStatus(int index, bool? value) {
@@ -51,7 +69,7 @@ abstract class _ChecklistStoreBase with Store {
       });
     } on Exception catch (e) {
       setError(e.toString());
-      print(e.toString());
+      // print(e.toString());
     }
   }
 }

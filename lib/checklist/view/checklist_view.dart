@@ -50,12 +50,12 @@ class _ChecklistViewState extends State<ChecklistView> {
                 padding: const EdgeInsets.all(8.0),
                 child: Observer(builder: (_) {
                   return ListView.builder(
-                    itemCount: checklistStore.taskList.length,
+                    itemCount: checklistStore.filteredList.length,
                     itemBuilder: (context, index) => Observer(builder: (_) {
                       return ListTile(
-                        title: Text(checklistStore.taskList[index].title),
+                        title: Text(checklistStore.filteredList[index].title),
                         leading: Checkbox(
-                          value: checklistStore.taskList[index].completed,
+                          value: checklistStore.filteredList[index].completed,
                           onChanged: (value) {
                             checklistStore.setTaskStatus(index, value);
                           },
@@ -74,7 +74,15 @@ class _ChecklistViewState extends State<ChecklistView> {
         }
       }),
       appBar: AppBar(
-        title: const Text('Checklist'),
+        title: TextField(
+          decoration: const InputDecoration(
+            border: InputBorder.none,
+            hintText: 'Pesquisar',
+          ),
+          onChanged: (value) {
+            checklistStore.setFilter(value);
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
           onPressed: () {

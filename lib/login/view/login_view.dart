@@ -105,7 +105,7 @@ class _LoginViewState extends State<LoginView> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => ChecklistView()),
+                      MaterialPageRoute(builder: (_) => const ChecklistView()),
                     );
                   },
                 ),
