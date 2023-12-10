@@ -38,7 +38,6 @@ dependencies:
   firebase_auth: ^4.9.0
   firebase_core: ^2.15.1
   google_sign_in: ^6.0.2
-  logger: ^1.1.0
   shared_preferences: ^2.0.17
   http: ^1.1.0
   mobx: ^2.2.0
