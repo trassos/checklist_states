@@ -21,3 +21,7 @@ O --- Por email.
 X --- Beeceptor - List
 O --- Firestore - Stream
 O --- Supabase - Stream
+
+## Lembrar de Tirar as Keys
+
+https://gist.github.com/derzorngottes/3b57edc1f996dddcab25
