@@ -1,16 +1,23 @@
-# tasks_basic
+# Autenticações e Controle de Estado
 
-A new Flutter project.
+Projeto iniciou da intenção de comparar e testar diferentes tipos de autenticação e abordagens de controle de estado do Framework. 
 
-## Getting Started
+## Abordagens de Controle de Estado
 
-This project is a starting point for a Flutter application.
+X --- Por propriedade.
+X --- Por listeners.
+X --- Por listeners com store separado.
+X --- Por listeners com estado separado - ID.
+X --- Transformando em Stateless.
 
-A few resources to get you started if this is your first Flutter project:
+## Tipos de Autenticação
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+X --- Por firebase.
+O --- Por supabase.
+O --- Por email.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Acessos a dados externos
+
+X --- Beeceptor - List
+O --- Firestore - Stream
+O --- Supabase - Stream
